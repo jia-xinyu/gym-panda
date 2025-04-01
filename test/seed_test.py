@@ -1,7 +1,7 @@
 import gymnasium as gym
 import numpy as np
 
-import panda_gym
+import gym_panda
 
 
 def test_seed_reach():

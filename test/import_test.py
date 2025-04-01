@@ -1,2 +1,2 @@
 def test_import():
-    import panda_gym
+    import gym_panda

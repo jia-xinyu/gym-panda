@@ -1,9 +1,41 @@
-env
-*__pycache__
-*.egg-info
-*.db
-.vscode
-_build/
+# Prerequisites
+*.d
+*.idea
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
 build/
-.DS_Store
-sandbox
+devel/
+.catkin_tools/
+.vscode/
+__pycache__/
+*.egg-info/
+.pytest_cache/
