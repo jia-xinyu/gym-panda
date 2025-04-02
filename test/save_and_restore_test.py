@@ -7,7 +7,7 @@ import gym_panda
 
 
 def test_save_and_restore_state():
-    env = gym.make("PandaReach-v3")
+    env = gym.make("gym_panda/PandaPickAndPlace-v3")
     env.reset()
 
     state_id = env.unwrapped.save_state()
@@ -28,7 +28,7 @@ def test_save_and_restore_state():
 
 
 def test_remove_state():
-    env = gym.make("PandaReach-v3")
+    env = gym.make("gym_panda/PandaPickAndPlace-v3")
     env.reset()
     state_id = env.unwrapped.save_state()
     env.unwrapped.remove_state(state_id)

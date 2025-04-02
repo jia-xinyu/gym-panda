@@ -7,8 +7,6 @@ import pybullet as p
 import pybullet_data
 import pybullet_utils.bullet_client as bc
 
-import gym_panda.assets
-
 
 class PyBullet:
     """Convenient class to use PyBullet physics engine.
@@ -30,7 +28,7 @@ class PyBullet:
         renderer: str = "Tiny",
     ) -> None:
         self.render_mode = render_mode
-        background_color = background_color if background_color is not None else np.array([223.0, 54.0, 45.0])
+        background_color = background_color if background_color is not None else np.array([41.0, 36.0, 33.0])
         self.background_color = background_color.astype(np.float32) / 255
         options = "--background_color_red={} --background_color_green={} --background_color_blue={}".format(
             *self.background_color
@@ -446,10 +444,10 @@ class PyBullet:
             visual_kwargs=visual_kwargs,
             collision_kwargs=collision_kwargs,
         )
-        if texture is not None:
-            texture_path = os.path.join(gym_panda.assets.get_data_path(), texture)
-            texture_uid = self.physics_client.loadTexture(texture_path)
-            self.physics_client.changeVisualShape(self._bodies_idx[body_name], -1, textureUniqueId=texture_uid)
+        # if texture is not None:
+        #     texture_path = os.path.join(gym_panda.assets.get_data_path(), texture)
+        #     texture_uid = self.physics_client.loadTexture(texture_path)
+        #     self.physics_client.changeVisualShape(self._bodies_idx[body_name], -1, textureUniqueId=texture_uid)
 
     def create_cylinder(
         self,
@@ -605,7 +603,7 @@ class PyBullet:
             mass=0.0,
             position=np.array([0.0, 0.0, z_offset - 0.01]),
             specular_color=np.zeros(3),
-            rgba_color=np.array([0.15, 0.15, 0.15, 1.0]),
+            rgba_color=np.array([0.15, 0.14, 0.13, 1.0]),
         )
 
     def create_table(
@@ -635,7 +633,7 @@ class PyBullet:
             mass=0.0,
             position=np.array([x_offset, 0.0, -height / 2]),
             specular_color=np.zeros(3),
-            rgba_color=np.array([0.95, 0.95, 0.95, 1]),
+            rgba_color=np.array([0.45, 0.45, 0.45, 1]),
             lateral_friction=lateral_friction,
             spinning_friction=spinning_friction,
         )

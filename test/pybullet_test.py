@@ -3,24 +3,24 @@ import pytest
 
 
 def test_import():
-    from gym_panda.envs.pybullet import PyBullet
+    from gym_panda.pybullet import PyBullet
 
 
 def test_construct():
-    from gym_panda.envs.pybullet import PyBullet
+    from gym_panda.pybullet import PyBullet
 
     pybullet = PyBullet()
 
 
 def test_close():
-    from gym_panda.envs.pybullet import PyBullet
+    from gym_panda.pybullet import PyBullet
 
     pybullet = PyBullet()
     pybullet.close()
 
 
 def test_step():
-    from gym_panda.envs.pybullet import PyBullet
+    from gym_panda.pybullet import PyBullet
 
     pybullet = PyBullet()
     pybullet.step()
@@ -28,7 +28,7 @@ def test_step():
 
 
 def test_dt():
-    from gym_panda.envs.pybullet import PyBullet
+    from gym_panda.pybullet import PyBullet
 
     pybullet = PyBullet()
     assert pybullet.dt == 0.04
@@ -36,7 +36,7 @@ def test_dt():
 
 
 def test_create_box():
-    from gym_panda.envs.pybullet import PyBullet
+    from gym_panda.pybullet import PyBullet
 
     pybullet = PyBullet()
     pybullet.create_box("my_box", [0.5, 0.5, 0.5], 1.0, [0.0, 0.0, 0.0], [1.0, 0.0, 0.0, 1.0])
@@ -44,7 +44,7 @@ def test_create_box():
 
 
 def test_get_base_position():
-    from gym_panda.envs.pybullet import PyBullet
+    from gym_panda.pybullet import PyBullet
 
     pybullet = PyBullet()
     pybullet.create_box("my_box", [0.5, 0.5, 0.5], 1.0, [0.0, 0.0, 0.0], [1.0, 0.0, 0.0, 1.0])
@@ -54,7 +54,7 @@ def test_get_base_position():
 
 
 def test_get_base_velocity():
-    from gym_panda.envs.pybullet import PyBullet
+    from gym_panda.pybullet import PyBullet
 
     pybullet = PyBullet()
     pybullet.create_box("my_box", [0.5, 0.5, 0.5], 1.0, [0.0, 0.0, 0.0], [1.0, 0.0, 0.0, 1.0])
@@ -65,7 +65,7 @@ def test_get_base_velocity():
 
 
 def test_get_base_orientation():
-    from gym_panda.envs.pybullet import PyBullet
+    from gym_panda.pybullet import PyBullet
 
     pybullet = PyBullet()
     pybullet.create_box("my_box", [0.5, 0.5, 0.5], 1.0, [0.0, 0.0, 0.0], [1.0, 0.0, 0.0, 1.0])
@@ -75,7 +75,7 @@ def test_get_base_orientation():
 
 
 def test_get_base_rotation():
-    from gym_panda.envs.pybullet import PyBullet
+    from gym_panda.pybullet import PyBullet
 
     pybullet = PyBullet()
     pybullet.create_box("my_box", [0.5, 0.5, 0.5], 1.0, [0.0, 0.0, 0.0], [1.0, 0.0, 0.0, 1.0])
@@ -85,7 +85,7 @@ def test_get_base_rotation():
 
 
 def test_get_base_angular_velocity():
-    from gym_panda.envs.pybullet import PyBullet
+    from gym_panda.pybullet import PyBullet
 
     pybullet = PyBullet()
     pybullet.create_box("my_box", [0.5, 0.5, 0.5], 1.0, [0.0, 0.0, 0.0], [1.0, 0.0, 0.0, 1.0])
@@ -95,7 +95,7 @@ def test_get_base_angular_velocity():
 
 
 def test_load_URDF():
-    from gym_panda.envs.pybullet import PyBullet
+    from gym_panda.pybullet import PyBullet
 
     pybullet = PyBullet()
     pybullet.loadURDF(
@@ -108,7 +108,7 @@ def test_load_URDF():
 
 
 def test_control_joints():
-    from gym_panda.envs.pybullet import PyBullet
+    from gym_panda.pybullet import PyBullet
 
     pybullet = PyBullet()
     pybullet.loadURDF(
@@ -122,7 +122,7 @@ def test_control_joints():
 
 
 def test_get_link_position():
-    from gym_panda.envs.pybullet import PyBullet
+    from gym_panda.pybullet import PyBullet
 
     pybullet = PyBullet()
     pybullet.loadURDF(
@@ -137,7 +137,7 @@ def test_get_link_position():
 
 
 def test_get_link_orientation():
-    from gym_panda.envs.pybullet import PyBullet
+    from gym_panda.pybullet import PyBullet
 
     pybullet = PyBullet()
     pybullet.loadURDF(
@@ -154,7 +154,7 @@ def test_get_link_orientation():
 
 
 def test_get_link_velocity():
-    from gym_panda.envs.pybullet import PyBullet
+    from gym_panda.pybullet import PyBullet
 
     pybullet = PyBullet()
     pybullet.loadURDF(
@@ -171,7 +171,7 @@ def test_get_link_velocity():
 
 
 def test_get_link_angular_velocity():
-    from gym_panda.envs.pybullet import PyBullet
+    from gym_panda.pybullet import PyBullet
 
     pybullet = PyBullet()
     pybullet.loadURDF(
@@ -188,7 +188,7 @@ def test_get_link_angular_velocity():
 
 
 def test_get_joint_angle():
-    from gym_panda.envs.pybullet import PyBullet
+    from gym_panda.pybullet import PyBullet
 
     pybullet = PyBullet()
     pybullet.loadURDF(
@@ -205,7 +205,7 @@ def test_get_joint_angle():
 
 
 def test_set_base_pose():
-    from gym_panda.envs.pybullet import PyBullet
+    from gym_panda.pybullet import PyBullet
 
     pybullet = PyBullet()
     pybullet.create_box("my_box", [0.5, 0.5, 0.5], 1.0, [0.0, 0.0, 0.0], [1.0, 0.0, 0.0, 1.0])
@@ -218,7 +218,7 @@ def test_set_base_pose():
 
 
 def test_set_joint_angle():
-    from gym_panda.envs.pybullet import PyBullet
+    from gym_panda.pybullet import PyBullet
 
     pybullet = PyBullet()
     pybullet.loadURDF(
@@ -234,7 +234,7 @@ def test_set_joint_angle():
 
 
 def test_set_joint_angles():
-    from gym_panda.envs.pybullet import PyBullet
+    from gym_panda.pybullet import PyBullet
 
     pybullet = PyBullet()
     pybullet.loadURDF(
@@ -252,7 +252,7 @@ def test_set_joint_angles():
 
 
 def test_inverse_kinematics():
-    from gym_panda.envs.pybullet import PyBullet
+    from gym_panda.pybullet import PyBullet
 
     pybullet = PyBullet()
     pybullet.loadURDF(
@@ -267,14 +267,14 @@ def test_inverse_kinematics():
 
 
 def test_place_visualizer():
-    from gym_panda.envs.pybullet import PyBullet
+    from gym_panda.pybullet import PyBullet
 
     pybullet = PyBullet()
     pybullet.place_visualizer([0.1, 0.2, 0.3], 5.0, 0.3, 0.4)
 
 
 def test_create_cylinder():
-    from gym_panda.envs.pybullet import PyBullet
+    from gym_panda.pybullet import PyBullet
 
     pybullet = PyBullet()
     pybullet.create_cylinder("my_cylinder", 0.5, 1.0, 1.0, [0.0, 0.0, 0.0], [1.0, 0.0, 0.0, 1.0])
@@ -282,7 +282,7 @@ def test_create_cylinder():
 
 
 def test_create_sphere():
-    from gym_panda.envs.pybullet import PyBullet
+    from gym_panda.pybullet import PyBullet
 
     pybullet = PyBullet()
     pybullet.create_sphere("my_sphere", 0.5, 1.0, [0.0, 0.0, 0.0], [1.0, 0.0, 0.0, 1.0])
@@ -290,7 +290,7 @@ def test_create_sphere():
 
 
 def test_create_plane():
-    from gym_panda.envs.pybullet import PyBullet
+    from gym_panda.pybullet import PyBullet
 
     pybullet = PyBullet()
     pybullet.create_plane(0.5)
@@ -298,7 +298,7 @@ def test_create_plane():
 
 
 def test_create_table():
-    from gym_panda.envs.pybullet import PyBullet
+    from gym_panda.pybullet import PyBullet
 
     pybullet = PyBullet()
     pybullet.create_table(0.5, 0.6, 0.4)
@@ -306,7 +306,7 @@ def test_create_table():
 
 
 def test_set_lateral_friction():
-    from gym_panda.envs.pybullet import PyBullet
+    from gym_panda.pybullet import PyBullet
 
     pybullet = PyBullet()
     pybullet.create_box("my_box", [0.5, 0.5, 0.5], 1.0, [0.0, 0.0, 0.0], [1.0, 0.0, 0.0, 1.0])
@@ -315,7 +315,7 @@ def test_set_lateral_friction():
 
 
 def test_set_spinning_friction():
-    from gym_panda.envs.pybullet import PyBullet
+    from gym_panda.pybullet import PyBullet
 
     pybullet = PyBullet()
     pybullet.create_box("my_box", [0.5, 0.5, 0.5], 1.0, [0.0, 0.0, 0.0], [1.0, 0.0, 0.0, 1.0])

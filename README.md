@@ -13,7 +13,7 @@ pip install -e gym-panda
 import gymnasium as gym
 import gym_panda
 
-env = gym.make('PandaReach-v3', render_mode="human")
+env = gym.make("gym_panda/PandaPickAndPlace-v3", render_mode="human")
 
 observation, info = env.reset()
 

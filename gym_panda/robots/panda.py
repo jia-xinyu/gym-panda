@@ -3,8 +3,8 @@ from typing import Optional
 import numpy as np
 from gymnasium import spaces
 
-from gym_panda.envs.core import PyBulletRobot
-from gym_panda.envs.pybullet import PyBullet
+from gym_panda.robots.robot_base import PyBulletRobot
+from gym_panda.pybullet import PyBullet
 
 
 class Panda(PyBulletRobot):
@@ -38,7 +38,7 @@ class Panda(PyBulletRobot):
             base_position=base_position,
             action_space=action_space,
             joint_indices=np.array([0, 1, 2, 3, 4, 5, 6, 9, 10]),
-            joint_forces=np.array([87.0, 87.0, 87.0, 87.0, 12.0, 120.0, 120.0, 170.0, 170.0]),
+            joint_forces=np.array([87.0, 87.0, 87.0, 87.0, 12.0, 12.0, 12.0, 170.0, 170.0]),
         )
 
         self.fingers_indices = np.array([9, 10])
@@ -54,10 +54,10 @@ class Panda(PyBulletRobot):
         action = np.clip(action, self.action_space.low, self.action_space.high)
         if self.control_type == "ee":
             ee_displacement = action[:3]
-            target_arm_angles = self.ee_displacement_to_target_arm_angles(ee_displacement)
+            target_arm_angles = self.ee_to_qdes(ee_displacement)
         else:
             arm_joint_ctrl = action[:7]
-            target_arm_angles = self.arm_joint_ctrl_to_target_arm_angles(arm_joint_ctrl)
+            target_arm_angles = self.joint_to_qdes(arm_joint_ctrl)
 
         if self.block_gripper:
             target_fingers_width = 0
@@ -69,7 +69,7 @@ class Panda(PyBulletRobot):
         target_angles = np.concatenate((target_arm_angles, [target_fingers_width / 2, target_fingers_width / 2]))
         self.control_joints(target_angles=target_angles)
 
-    def ee_displacement_to_target_arm_angles(self, ee_displacement: np.ndarray) -> np.ndarray:
+    def ee_to_qdes(self, ee_displacement: np.ndarray) -> np.ndarray:
         """Compute the target arm angles from the end-effector displacement.
 
         Args:
@@ -80,7 +80,7 @@ class Panda(PyBulletRobot):
         """
         ee_displacement = ee_displacement[:3] * 0.05  # limit maximum change in position
         # get the current position and the target position
-        ee_position = self.get_ee_position()
+        ee_position = self.get_ee_pos()
         target_ee_position = ee_position + ee_displacement
         # Clip the height target. For some reason, it has a great impact on learning
         target_ee_position[2] = np.max((0, target_ee_position[2]))
@@ -91,7 +91,7 @@ class Panda(PyBulletRobot):
         target_arm_angles = target_arm_angles[:7]  # remove fingers angles
         return target_arm_angles
 
-    def arm_joint_ctrl_to_target_arm_angles(self, arm_joint_ctrl: np.ndarray) -> np.ndarray:
+    def joint_to_qdes(self, arm_joint_ctrl: np.ndarray) -> np.ndarray:
         """Compute the target arm angles from the arm joint control.
 
         Args:
@@ -102,28 +102,35 @@ class Panda(PyBulletRobot):
         """
         arm_joint_ctrl = arm_joint_ctrl * 0.05  # limit maximum change in position
         # get the current position and the target position
-        current_arm_joint_angles = np.array([self.get_joint_angle(joint=i) for i in range(7)])
+        current_arm_joint_angles =self.get_joint_pos()
         target_arm_angles = current_arm_joint_angles + arm_joint_ctrl
         return target_arm_angles
 
     def get_obs(self) -> np.ndarray:
-        # end-effector position and velocity
-        ee_position = np.array(self.get_ee_position())
-        ee_velocity = np.array(self.get_ee_velocity())
+        # joint position / end-effector position
+        obs = self.get_ee_pos() if self.control_type == "ee" else self.get_joint_pos()
+        observation = obs
+
         # fingers opening
         if not self.block_gripper:
             fingers_width = self.get_fingers_width()
-            observation = np.concatenate((ee_position, ee_velocity, [fingers_width]))
-        else:
-            observation = np.concatenate((ee_position, ee_velocity))
+            observation = np.concatenate((obs, [fingers_width]))
         return observation
 
     def reset(self) -> None:
         self.set_joint_neutral()
 
     def set_joint_neutral(self) -> None:
-        """Set the robot to its neutral pose."""
+        """Set the robot to its neutral pose (9x1)."""
         self.set_joint_angles(self.neutral_joint_values)
+
+    def get_joint_pos(self) -> np.ndarray:
+        """Returns the joint position (7x1)"""
+        return np.array([self.get_joint_angle(joint=i) for i in range(7)])
+
+    def get_joint_vel(self) -> np.ndarray:
+        """Returns the joint velocity (7x1)"""
+        return np.array([self.get_joint_velocity(joint=i) for i in range(7)])
 
     def get_fingers_width(self) -> float:
         """Get the distance between the fingers."""
@@ -131,10 +138,10 @@ class Panda(PyBulletRobot):
         finger2 = self.sim.get_joint_angle(self.body_name, self.fingers_indices[1])
         return finger1 + finger2
 
-    def get_ee_position(self) -> np.ndarray:
+    def get_ee_pos(self) -> np.ndarray:
         """Returns the position of the end-effector as (x, y, z)"""
         return self.get_link_position(self.ee_link)
 
-    def get_ee_velocity(self) -> np.ndarray:
+    def get_ee_vel(self) -> np.ndarray:
         """Returns the velocity of the end-effector as (vx, vy, vz)"""
         return self.get_link_velocity(self.ee_link)

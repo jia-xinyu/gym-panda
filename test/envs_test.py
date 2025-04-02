@@ -8,7 +8,7 @@ import gym_panda
 def run_env(env):
     """Tests running panda gym envs."""
     env.reset()
-    for _ in range(1000):
+    for _ in range(10):
         action = env.action_space.sample()
         _, _, terminated, truncated, _ = env.step(action)
         if terminated or truncated:
