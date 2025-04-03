@@ -1,31 +1,25 @@
 # gym-panda
 
+## Introduction
+Support [Stable-Baseline3](https://github.com/DLR-RM/stable-baselines3) and [LeRobot](https://github.com/huggingface/lerobot).
+
 ## Installation
 
 ```bash
 git clone https://github.com/jia-xinyu/gym-panda.git
-pip install -e gym-panda
+cd gym-panda && pip install -e .
 ```
 
 ## Usage
 
-```python
-import gymnasium as gym
-import gym_panda
-
-env = gym.make("gym_panda/PandaPickAndPlace-v3", render_mode="human")
-
-observation, info = env.reset()
-
-for _ in range(1000):
-    action = env.action_space.sample() # random action
-    observation, reward, terminated, truncated, info = env.step(action)
-
-    if terminated or truncated:
-        observation, info = env.reset()
-
-env.close()
+Run the demo file
+```bash
+python demo.py
 ```
+
+<div align="center">
+<img width="800" src="docs/PandaPickAndPlace.png">
+</div>
 
 ## References
 
