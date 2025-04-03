@@ -1,7 +1,6 @@
 from typing import Any, Dict, Optional, Tuple
 
 import gymnasium as gym
-from gymnasium import spaces
 import numpy as np
 
 from gym_panda.pybullet import PyBullet
@@ -26,7 +25,7 @@ class PandaEnv(gym.Env):
     Args:
         task (str): Task name. Can be either "PickAndPlace", "Stack".
         obs_type (str, optional): Observation type. Can be either "state", "pixels" or "pixels_agent_pos".
-            Default is "pixels".
+            Default is "state".
         observation_width (int, optional): Width of the observed image. Defaults to 640.
         observation_height (int, optional): Height of the observed image. Defaults to 640.
         control_type (str, optional): "ee" to control end-effector position or "joints" to control joint values.
@@ -35,7 +34,7 @@ class PandaEnv(gym.Env):
         renderer (str, optional): Renderer, either "Tiny" or OpenGL". Defaults to "Tiny" if render mode is "human"
             and "OpenGL" if render mode is "rgb_array". Only "OpenGL" is available for human render mode.
         render_width (int, optional): Width of the visualized image. Defaults to 640.
-        render_height (int, optional): Height of the visualized image. Defaults to 640.
+        render_height (int, optional): Height of the visualized image. Defaults to 480.
         render_target_position (np.ndarray, optional): Camera targeting this position, as (x, y, z).
             Defaults to [0., 0., 0.].
         render_distance (float, optional): Distance of the camera. Defaults to 1.4.
@@ -49,7 +48,7 @@ class PandaEnv(gym.Env):
     def __init__(
         self,
         task: str,
-        obs_type: str = "pixels",
+        obs_type: str = "state",
         observation_width: int = 640,
         observation_height: int = 480,
         control_type: str = "ee",
@@ -77,7 +76,7 @@ class PandaEnv(gym.Env):
         self.render_width = render_width
         self.render_height = render_height
         self.render_target_position = (
-            render_target_position if render_target_position is not None else np.array([0.0, 0.0, 0.0])
+            render_target_position if render_target_position is not None else np.array([0., 0., 0.])
         )
         self.render_distance = render_distance
         self.render_yaw = render_yaw
@@ -97,20 +96,23 @@ class PandaEnv(gym.Env):
                 pitch=self.render_pitch,
             )
 
-    def _initialize_observation_space(self):
+    def _initialize_observation_space(self) -> Dict[str, np.ndarray]:
         image_shape = (self.observation_height, self.observation_width, 3)
         obs = self._get_obs()
         if self.obs_type == "state":
-            obs_space = gym.spaces.Box(-10., 10., shape=obs.shape, dtype=np.float64)
+            obs_space = gym.spaces.Dict(
+                {
+                    "agent_pos": gym.spaces.Box(low=-10., high=10., shape=obs["agent_pos"].shape, dtype=np.float32),
+                    "object_pos": gym.spaces.Box(low=-10., high=10., shape=obs["object_pos"].shape, dtype=np.float32),
+                }
+            )
         elif self.obs_type == "pixels":
-            obs_space = gym.spaces.Box(low=0, high=255, shape=image_shape, dtype=np.uint8)
+            raise NotImplementedError()
         elif self.obs_type == "pixels_agent_pos":
             obs_space = gym.spaces.Dict(
                 {
                     "pixels": gym.spaces.Box(low=0, high=255, shape=image_shape, dtype=np.uint8),
-                    "agent_pos": gym.spaces.Box(
-                        low=-10., high=10., shape=obs["agent_pos"].shape, dtype=np.float64
-                    ),
+                    "agent_pos": gym.spaces.Box(low=-10., high=10., shape=obs["agent_pos"].shape, dtype=np.float32),
                 }
             )
         else:
@@ -125,9 +127,12 @@ class PandaEnv(gym.Env):
         pixels = self._render()                             # RGB images
 
         if self.obs_type == "state":
-            return np.concatenate([robot_obs, task_obs])
+            return {
+                "agent_pos": robot_obs,
+                "object_pos": task_obs,
+            }
         if self.obs_type == "pixels":
-            return pixels
+            raise NotImplementedError()
         elif self.obs_type == "pixels_agent_pos":
             return {
                 "pixels": pixels,

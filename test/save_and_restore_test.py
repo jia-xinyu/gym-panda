@@ -22,9 +22,8 @@ def test_save_and_restore_state():
     observation2, _, _, _, _ = env.step(action)
 
     # The observations in both cases should be equals
-    assert np.all(observation1["achieved_goal"] == observation2["achieved_goal"])
-    assert np.all(observation1["observation"] == observation2["observation"])
-    assert np.all(observation1["desired_goal"] == observation2["desired_goal"])
+    assert np.all(observation1["agent_pos"] == observation2["agent_pos"])
+    assert np.all(observation1["object_pos"] == observation2["object_pos"])
 
 
 def test_remove_state():

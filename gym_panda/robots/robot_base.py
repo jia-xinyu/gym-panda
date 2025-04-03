@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
+import gymnasium as gym
 import numpy as np
-from gymnasium import spaces
 
 from gym_panda.pybullet import PyBullet
 
@@ -22,7 +22,7 @@ class PyBulletRobot(ABC):
         body_name: str,
         file_name: str,
         base_position: np.ndarray,
-        action_space: spaces.Space,
+        action_space: gym.spaces.Space,
         joint_indices: np.ndarray,
         joint_forces: np.ndarray,
     ) -> None:

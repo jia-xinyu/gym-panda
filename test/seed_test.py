@@ -23,9 +23,8 @@ def test_seed_pick_and_place():
                 observation, _ = env.reset()
         final_observations.append(observation)
 
-    assert np.allclose(final_observations[0]["observation"], final_observations[1]["observation"])
-    assert np.allclose(final_observations[0]["achieved_goal"], final_observations[1]["achieved_goal"])
-    assert np.allclose(final_observations[0]["desired_goal"], final_observations[1]["desired_goal"])
+    assert np.allclose(final_observations[0]["agent_pos"], final_observations[1]["agent_pos"])
+    assert np.allclose(final_observations[0]["object_pos"], final_observations[1]["object_pos"])
 
 
 def test_seed_stack():
@@ -46,6 +45,5 @@ def test_seed_stack():
             if terminated or truncated:
                 observation, _ = env.reset()
         final_observations.append(observation)
-    assert np.allclose(final_observations[0]["observation"], final_observations[1]["observation"])
-    assert np.allclose(final_observations[0]["achieved_goal"], final_observations[1]["achieved_goal"])
-    assert np.allclose(final_observations[0]["desired_goal"], final_observations[1]["desired_goal"])
+    assert np.allclose(final_observations[0]["agent_pos"], final_observations[1]["agent_pos"])
+    assert np.allclose(final_observations[0]["object_pos"], final_observations[1]["object_pos"])

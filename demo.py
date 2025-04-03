@@ -1,6 +1,5 @@
 import gymnasium as gym
-import gym_panda
-import time
+import gym_panda, time
 
 env = gym.make("gym_panda/PandaPickAndPlace-v3", render_mode="human")
 
@@ -13,5 +12,5 @@ for _ in range(1000):
     if terminated or truncated:
         observation, info = env.reset()
 
-# time.sleep(10)
+time.sleep(8)
 env.close()

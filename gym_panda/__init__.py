@@ -17,7 +17,7 @@ for task in ["PickAndPlace", "Stack"]:
             # Even after seeding, the rendered observations are slightly different,
             # so we set `nondeterministic=True` to pass `check_env` tests
             nondeterministic=True,
-            kwargs={"obs_type": "pixels", "task": task, "control_type": control_type},
+            kwargs={"obs_type": "state", "task": task, "control_type": control_type},
             max_episode_steps=100 if task == "Stack" else 50,
         )
 
