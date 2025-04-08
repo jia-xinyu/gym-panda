@@ -30,3 +30,18 @@ def angle_distance(a: np.ndarray, b: np.ndarray) -> np.ndarray:
     assert a.shape == b.shape
     dist = 1 - np.inner(a, b) ** 2
     return dist
+
+
+def normalize_vector(x: np.ndarray) -> np.ndarray:
+    """Normalize Vector"""
+    norm = np.linalg.norm(x)
+    norm = np.where(norm == 0, 1, norm)
+    return x / norm
+
+
+def compute_angle_between(x1: np.ndarray, x2: np.ndarray) -> float:
+    """Compute angle (radian) between two numpy arrays"""
+    x1, x2 = normalize_vector(x1), normalize_vector(x2)
+    dot_prod = np.clip(np.dot(x1, x2), -1, 1)
+
+    return np.arccos(dot_prod)

@@ -81,10 +81,10 @@ class PickAndPlace(Task):
         object_position += noise
         return object_position
 
-    def is_success(self) -> np.ndarray:
+    def is_success(self, info: Dict[str, Any] = {}) -> np.ndarray:
         d = distance(self.get_achieved_goal(), self.goal)
         return np.array(d < self.distance_threshold, dtype=bool)
 
-    def compute_reward(self) -> np.ndarray:
+    def compute_reward(self, info: Dict[str, Any] = {}) -> np.ndarray:
         d = distance(self.get_achieved_goal(), self.goal)
         return -np.array(d > self.distance_threshold, dtype=np.float32)

@@ -84,6 +84,17 @@ class PyBulletRobot(ABC):
         """
         return self.sim.get_link_position(self.body_name, link)
 
+    def get_link_orientation(self, link: int) -> np.ndarray:
+        """Returns the position of a link as (rx, ry, rz, w)
+
+        Args:
+            link (int): The link index.
+
+        Returns:
+            np.ndarray: Orientation as (rx, ry, rz, w).
+        """
+        return self.sim.get_link_orientation(self.body_name, link)
+    
     def get_link_velocity(self, link: int) -> np.ndarray:
         """Returns the velocity of a link as (vx, vy, vz)
 
@@ -151,3 +162,18 @@ class PyBulletRobot(ABC):
         """
         inverse_kinematics = self.sim.inverse_kinematics(self.body_name, link=link, position=position, orientation=orientation)
         return inverse_kinematics
+    
+    def get_contact_force(self, link: int, object_name: str) -> np.ndarray:
+        """Get the contact force between a link and an object. 
+
+        Args:
+            link (int): Link index in the body.
+            object_name (str): Object unique name.
+        
+        Returns:
+            np.ndarray: Force as (x, y, z). Force direction pointing from the object towards the body.
+        """
+        contact_force = self.sim.get_contact_force(bodyA=self.body_name, bodyB=object_name, linkA=link, linkB=-1)
+                                    
+        return contact_force
+        

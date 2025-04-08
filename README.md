@@ -1,7 +1,7 @@
 # gym-panda
 
 ## Introduction
-Support [Stable-Baseline3](https://github.com/DLR-RM/stable-baselines3) and [LeRobot](https://github.com/huggingface/lerobot).
+Support [Stable-Baselines3](https://github.com/DLR-RM/stable-baselines3) and [LeRobot](https://github.com/huggingface/lerobot).
 
 ## Installation
 

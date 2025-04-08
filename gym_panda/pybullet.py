@@ -238,7 +238,7 @@ class PyBullet:
             link (int): Link index in the body.
 
         Returns:
-            np.ndarray: The rotation, as (rx, ry, rz).
+            np.ndarray: The rotation, as (rx, ry, rz, w).
         """
         orientation = self.physics_client.getLinkState(self._bodies_idx[body], link)[1]
         return np.array(orientation)
@@ -665,3 +665,27 @@ class PyBullet:
             linkIndex=link,
             spinningFriction=spinning_friction,
         )
+
+    def get_contact_force(self, bodyA: str, bodyB: str, linkA: int, linkB: int) -> np.ndarray:
+        """Get the contact force between two bodies.
+
+        Args:
+            body (str): Body unique name.
+            link (int): Link index in the body.
+        """
+        contact_points = self.physics_client.getContactPoints(
+            bodyA=self._bodies_idx[bodyA], 
+            bodyB=self._bodies_idx[bodyB], 
+            linkIndexA=linkA, 
+            linkIndexB=linkB,
+        )
+
+        contact_forces = np.array([0., 0., 0.])
+        if contact_points:
+            for contact in contact_points:
+                contact_forces += np.array(contact[7]) * contact[9]
+        # contact[7]: contact normal on B, pointing towards A (i.e., B -> A)
+        # contact[9]: normal force applied during the last 'stepSimulation'
+
+        return contact_forces
+        

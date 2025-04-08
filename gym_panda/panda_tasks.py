@@ -143,6 +143,13 @@ class PandaEnv(gym.Env):
                 f"Unknown obs_type {self.obs_type}. Must be one of [pixels, state, pixels_agent_pos]"
             )
         
+    def _get_info(self) -> Dict[str, Any]:
+        is_grasped = self.robot.is_grasping("object")  # [TODO]
+        info = {
+            "is_success": bool(self.task.is_success(self.robot)),
+        }
+        return info
+
     def reset(
         self, seed: Optional[int] = None, options: Optional[dict] = None
     ) -> Tuple[Dict[str, np.ndarray], Dict[str, Any]]:
@@ -152,18 +159,18 @@ class PandaEnv(gym.Env):
             self.robot.reset()
             self.task.reset()
         observation = self._get_obs()
-        info = {"is_success": bool(self.task.is_success())}
+        info = self._get_info()
         return observation, info
 
     def step(self, action: np.ndarray) -> Tuple[Dict[str, np.ndarray], float, bool, bool, Dict[str, Any]]:
         self.robot.set_action(action)
         self.sim.step()
         observation = self._get_obs()
+        info = self._get_info()
         # An episode is terminated if the agent has reached the target
-        terminated = bool(self.task.is_success())
+        terminated = info["is_success"]
         truncated = False
-        info = {"is_success": terminated}
-        reward = float(self.task.compute_reward())
+        reward = float(self.task.compute_reward(info))
         return observation, reward, terminated, truncated, info
 
     def close(self) -> None:
