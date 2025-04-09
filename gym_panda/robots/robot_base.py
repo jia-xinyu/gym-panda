@@ -174,6 +174,6 @@ class PyBulletRobot(ABC):
             np.ndarray: Force as (x, y, z). Force direction pointing from the object towards the body.
         """
         contact_force = self.sim.get_contact_force(bodyA=self.body_name, bodyB=object_name, linkA=link, linkB=-1)
-                                    
+
         return contact_force
         

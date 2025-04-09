@@ -144,9 +144,9 @@ class PandaEnv(gym.Env):
             )
         
     def _get_info(self) -> Dict[str, Any]:
-        is_grasped = self.robot.is_grasping("object")  # [TODO]
+        # is_grasped = self.robot.is_grasping("object")  # [TODO] search task objects
         info = {
-            "is_success": bool(self.task.is_success(self.robot)),
+            "is_success": bool(self.task.is_success()),
         }
         return info
 
@@ -193,7 +193,7 @@ class PandaEnv(gym.Env):
             else (self.observation_width, self.observation_height)
         )
 
-        # TODO: render several RGB images
+        # [TODO]: render several RGB images
         image = self.sim.render(
             width=width, height=height,
             target_position=self.render_target_position,
