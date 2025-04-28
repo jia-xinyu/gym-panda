@@ -1,5 +1,5 @@
 from typing import Optional
-from scipy.spatial.transform import Rotation
+from scipy.spatial.transform import Rotation as R
 
 import gymnasium as gym
 import numpy as np
@@ -16,7 +16,7 @@ class Panda(PyBulletRobot):
         sim (PyBullet): Simulation instance.
         block_gripper (bool, optional): Whether the gripper is blocked. Defaults to False.
         base_position (np.ndarray, optional): Position of the base base of the robot, as (x, y, z). Defaults to (0, 0, 0).
-        control_type (str, optional): "ee" to control end-effector displacement or "joints" to control joint angles.
+        control_type (str, optional): "ee" to control end-effector 6D pose or "joints" to control joint angles.
             Defaults to "ee".
     """
 
@@ -30,7 +30,7 @@ class Panda(PyBulletRobot):
         base_position = base_position if base_position is not None else np.zeros(3)
         self.block_gripper = block_gripper
         self.control_type = control_type
-        n_action = 3 if self.control_type == "ee" else 7  # control (x, y z) if "ee", else, control the 7 joints
+        n_action = 6 if self.control_type == "ee" else 7  # control 6D pose if "ee", else, control 7 joints
         n_action += 0 if self.block_gripper else 1
         action_space = gym.spaces.Box(-1.0, 1.0, shape=(n_action,), dtype=np.float32)
         super().__init__(
@@ -57,8 +57,8 @@ class Panda(PyBulletRobot):
         action = action.copy()  # ensure action don't change
         action = np.clip(action, self.action_space.low, self.action_space.high)
         if self.control_type == "ee":
-            ee_displacement = action[:3]
-            target_arm_angles = self.ee_to_qdes(ee_displacement)
+            ee_twist = action[:6]
+            target_arm_angles = self.ee_to_qdes(ee_twist)
         else:
             arm_joint_ctrl = action[:7]
             target_arm_angles = self.joint_to_qdes(arm_joint_ctrl)
@@ -73,24 +73,30 @@ class Panda(PyBulletRobot):
         target_angles = np.concatenate((target_arm_angles, [target_fingers_width / 2, target_fingers_width / 2]))
         self.control_joints(target_angles=target_angles)
 
-    def ee_to_qdes(self, ee_displacement: np.ndarray) -> np.ndarray:    # [TODO] consider orientation 
-        """Compute the target arm angles from the end-effector displacement.
+    def ee_to_qdes(self, ee_twist: np.ndarray) -> np.ndarray:
+        """Compute the target arm angles from the end-effector twist in Catersian space.
 
         Args:
-            ee_displacement (np.ndarray): End-effector displacement, as (dx, dy, dy).
+            ee_twist (np.ndarray): Twist, as (vx, vy, vz, wx, wy, wz).
 
         Returns:
             np.ndarray: Target arm angles, as the angles of the 7 arm joints.
         """
-        ee_displacement = ee_displacement[:3] * 0.05  # limit maximum change in position
-        # get the current position and the target position
-        ee_position = self.get_ee_pos()
-        target_ee_position = ee_position + ee_displacement
+        # Get the target pos
+        ee_translation = ee_twist[:3] * 0.05    # limit maximum change in position
+        target_ee_pos = self.get_ee_pos() + ee_translation
         # Clip the height target. For some reason, it has a great impact on learning
-        target_ee_position[2] = np.max((0, target_ee_position[2]))
-        # compute the new joint angles
+        target_ee_pos[2] = np.max((0, target_ee_pos[2]))
+
+        # Get the target quat
+        ee_rotation = ee_twist[3:] * 0.05       # limit maximum change in orientation
+        target_ee_ori = R.from_quat(self.get_ee_ori()) * R.from_rotvec(ee_rotation)
+        target_ee_ori = target_ee_ori.as_quat()
+        # target_ee_ori = np.array([1.0, 0.0, 0.0, 0.0])  # rotate 180 around x-axis
+
+        # Compute the new joint angles
         target_arm_angles = self.inverse_kinematics(
-            link=self.ee_link, position=target_ee_position, orientation=np.array([1.0, 0.0, 0.0, 0.0])
+            link=self.ee_link, position=target_ee_pos, orientation=target_ee_ori
         )
         target_arm_angles = target_arm_angles[:7]  # remove fingers angles
         return target_arm_angles
@@ -104,15 +110,15 @@ class Panda(PyBulletRobot):
         Returns:
             np.ndarray: Target arm angles, as the angles of the 7 arm joints.
         """
-        arm_joint_ctrl = arm_joint_ctrl * 0.05  # limit maximum change in position
-        # get the current position and the target position
+        arm_joint_ctrl = arm_joint_ctrl * 0.05  # limit maximum change in joint position
+        # Get the current position and the target position
         current_arm_joint_angles =self.get_joint_pos()
         target_arm_angles = current_arm_joint_angles + arm_joint_ctrl
         return target_arm_angles
 
     def get_obs(self) -> np.ndarray:
-        # joint position / end-effector position
-        obs = self.get_ee_pos() if self.control_type == "ee" else self.get_joint_pos()
+        # end-effector 6D pose / joint angle
+        obs = self.get_ee_pose() if self.control_type == "ee" else self.get_joint_pos()
         observation = obs
 
         # fingers opening
@@ -143,13 +149,26 @@ class Panda(PyBulletRobot):
         return finger1 + finger2
 
     def get_ee_pos(self) -> np.ndarray:
-        """Returns the position of the end-effector as (x, y, z)"""
+        """Returns the position (3x1) of the end-effector as (x, y, z)"""
         return self.get_link_position(self.ee_link)
-
-    def get_ee_vel(self) -> np.ndarray:
-        """Returns the velocity of the end-effector as (vx, vy, vz)"""
-        return self.get_link_velocity(self.ee_link)
     
+    def get_ee_ori(self) -> np.ndarray:
+        """Returns the orientation (4x1) of the end-effector as (rx, ry, rz, w)"""
+        return self.get_link_orientation(self.ee_link)
+    
+    def get_ee_pose(self) -> np.ndarray:
+        """Returns the pose (7x1) of the end-effector as (x, y, z, rx, ry, rz, w)"""
+        pos = self.get_ee_pos()
+        ori = self.get_ee_ori()
+        # ori = R.from_quat(self.get_ee_ori()).as_euler('xyz', degrees=False)
+        return np.hstack((pos, ori))
+    
+    def get_ee_vel(self) -> np.ndarray:
+        """Returns the velocity (6x1) of the end-effector as (vx, vy, vz, wx, wy, wz)"""
+        v = self.get_link_linear_velocity(self.ee_link)
+        w = self.get_link_angular_velocity(self.ee_link)
+        return np.hstack((v, w))
+        
     def is_grasping(self, object_name: str, min_force=0.5, max_angle=85) -> bool:
         """Check if the robot is grasping an object (ManiSkill/mani_skill/agents/robots/panda/panda.py)
 
@@ -165,8 +184,8 @@ class Panda(PyBulletRobot):
         rforce = np.linalg.norm(r_contact_force)
 
         # Direction to open the gripper (y-axis)
-        ldirection = Rotation.from_quat(self.get_link_orientation(self.left_finger)).as_matrix()
-        rdirection = Rotation.from_quat(self.get_link_orientation(self.right_finger)).as_matrix()
+        ldirection = R.from_quat(self.get_link_orientation(self.left_finger)).as_matrix()
+        rdirection = R.from_quat(self.get_link_orientation(self.right_finger)).as_matrix()
         langle = utils.compute_angle_between(ldirection[:3, 1], l_contact_force)
         rangle = utils.compute_angle_between(- rdirection[:3, 1], r_contact_force)
 

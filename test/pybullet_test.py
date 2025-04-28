@@ -153,7 +153,7 @@ def test_get_link_orientation():
     pybullet.close()
 
 
-def test_get_link_velocity():
+def test_get_link_linear_velocity():
     from gym_panda.pybullet import PyBullet
 
     pybullet = PyBullet()
@@ -165,7 +165,7 @@ def test_get_link_velocity():
     )
     pybullet.control_joints("panda", [5], [0.3], [5.0])
     pybullet.step()
-    link_velocity = pybullet.get_link_velocity("panda", 5)
+    link_velocity = pybullet.get_link_linear_velocity("panda", 5)
     assert np.allclose(link_velocity, [-0.0068, 0.0000, 0.1186], atol=1e-3)
     pybullet.close()
 

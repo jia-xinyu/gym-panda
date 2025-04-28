@@ -28,7 +28,7 @@ class PandaEnv(gym.Env):
             Default is "state".
         observation_width (int, optional): Width of the observed image. Defaults to 640.
         observation_height (int, optional): Height of the observed image. Defaults to 640.
-        control_type (str, optional): "ee" to control end-effector position or "joints" to control joint values.
+        control_type (str, optional): "ee" to control end-effector 6D pose or "joints" to control joint values.
             Defaults to "ee".
         render_mode (str, optional): Render mode. Defaults to "rgb_array".
         renderer (str, optional): Renderer, either "Tiny" or OpenGL". Defaults to "Tiny" if render mode is "human"
