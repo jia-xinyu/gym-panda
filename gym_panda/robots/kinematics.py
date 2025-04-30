@@ -1,6 +1,7 @@
 import quadprog
 import numpy as np
 import pinocchio as pin
+import warnings
 
 class pinKinematics:
     """Inverse kinematics sovler based on Quadprog.
@@ -70,31 +71,30 @@ class pinKinematics:
 
         # QP matrices for quadprog (0.5 x^T G x - a^T x)
         G = 2 * (Jlocal.T @ self.weight @ Jlocal + (self.damping ** 2) * np.eye(dof))
-        G = (G + G.T) / 2      # ensure symmetric
+        # G = (G + G.T) / 2      # ensure symmetric
 
         f = -2 * (Jlocal.T @ self.weight @ V)
         a = -f
 
-        # Constraints: Ax <= b
+        # Constraints: Ax >= b
         A_ineq = np.vstack([np.eye(dof)*dt, -np.eye(dof)*dt])
-        b_ineq = np.hstack([q_max-q, -(q_min-q)])
+        b_ineq = np.hstack([q_min-q, -(q_max-q)])
 
-        # Bound constraints: lb <= x <= ub -> via inequality
+        # Bound constraints: [x, -x] >= [lb, -ub]
         lb = -v_limit
         ub = v_limit
         A_bound = np.vstack([np.eye(dof), -np.eye(dof)])
-        b_bound = np.hstack([ub, -lb])
+        b_bound = np.hstack([lb, -ub])
 
         # Combine constraints
-        C = np.vstack([A_ineq, A_bound]).T  # quadprog wants G.T * x <= h
+        C = np.vstack([A_ineq, A_bound]).T  # quadprog wants C.T x >= b
         b_total = np.hstack([b_ineq, b_bound])
 
         # Solve the QP
         try:
             sol = quadprog.solve_qp(G, a, C, b_total)[0]
-            print("++++++++++++++++++++++")
         except ValueError:
             sol = np.zeros(dof)  # fallback if solver fails
-            print("22222222222222222222222222")
+            warnings.warn("Failed to find solution. Using zeros as fallback.")
 
         return sol
