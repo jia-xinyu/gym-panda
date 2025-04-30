@@ -71,7 +71,7 @@ class pinKinematics:
 
         # QP matrices for quadprog (0.5 x^T G x - a^T x)
         G = 2 * (Jlocal.T @ self.weight @ Jlocal + (self.damping ** 2) * np.eye(dof))
-        # G = (G + G.T) / 2      # ensure symmetric
+        G = (G + G.T) / 2   # ensure symmetric
 
         f = -2 * (Jlocal.T @ self.weight @ V)
         a = -f
