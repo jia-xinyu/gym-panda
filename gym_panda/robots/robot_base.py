@@ -1,9 +1,13 @@
 from abc import ABC, abstractmethod
+from typing import Optional
 
+import pinocchio as pin
 import gymnasium as gym
 import numpy as np
 
+from example_robot_data import load
 from gym_panda.pybullet import PyBullet
+from gym_panda.robots.kinematics import pinKinematics
 
 
 class PyBulletRobot(ABC):
@@ -11,41 +15,55 @@ class PyBulletRobot(ABC):
 
     Args:
         sim (PyBullet): Simulation instance.
-        body_name (str): The name of the robot within the simulation.
-        file_name (str): Path of the urdf file.
+        urdf_name (str): Robot name in example-robot-data.
+        tcp_name (str): Name of the tool center point.
         base_position (np.ndarray): Position of the base of the robot as (x, y, z).
+        base_orientation (np.ndarray): Euler orientation of the robot, as (rx, ry, rz).
+        joint_indices (np.ndarray): Joint indices including fingers.
+        joint_forces (np.ndarray): Maximum motor force used to reach the target value.
+        lock_pinocchio_fingers (list, optional): locked fingers in Pinocchio.
     """
 
     def __init__(
         self,
         sim: PyBullet,
-        body_name: str,
-        file_name: str,
+        urdf_name: str,
+        tcp_name: str,
         base_position: np.ndarray,
+        base_orientation: np.ndarray,
         action_space: gym.spaces.Space,
         joint_indices: np.ndarray,
         joint_forces: np.ndarray,
+        lock_pinocchio_joints: Optional[list] = None,
     ) -> None:
         self.sim = sim
-        self.body_name = body_name
+        self.body_name = urdf_name
+        robot = load(urdf_name)
+        model = robot.model
+        if lock_pinocchio_joints:
+            model = pin.buildReducedModel(model, lock_pinocchio_joints, np.zeros(model.nq))
+        data = model.createData()
         with self.sim.no_rendering():
-            self._load_robot(file_name, base_position)
+            self._load_robot(robot.urdf, base_position, base_orientation)
             self.setup()
         self.action_space = action_space
         self.joint_indices = joint_indices
         self.joint_forces = joint_forces
+        self.kin_solver = pinKinematics(model, data, model.getFrameId(tcp_name))
 
-    def _load_robot(self, file_name: str, base_position: np.ndarray) -> None:
+    def _load_robot(self, file_name: str, base_position: np.ndarray, base_orientation: np.ndarray) -> None:
         """Load the robot.
 
         Args:
-            file_name (str): The URDF file name of the robot.
-            base_position (np.ndarray): The position of the robot, as (x, y, z).
+            file_name (str): URDF file name of the robot.
+            base_position (np.ndarray): Position of the robot, as (x, y, z).
+            base_orientation (np.ndarray): Euler orientation of the robot, as (rx, ry, rz).
         """
         self.sim.loadURDF(
             body_name=self.body_name,
             fileName=file_name,
             basePosition=base_position,
+            baseOrientation=self.sim.physics_client.getQuaternionFromEuler(base_orientation),
             useFixedBase=True,
         )
 
@@ -58,7 +76,7 @@ class PyBulletRobot(ABC):
         """Set the action. Must be called just before sim.step().
 
         Args:
-            action (np.ndarray): The action.
+            action (np.ndarray): Action.
         """
 
     @abstractmethod
@@ -66,7 +84,7 @@ class PyBulletRobot(ABC):
         """Return the observation associated to the robot.
 
         Returns:
-            np.ndarray: The observation.
+            np.ndarray: Observation.
         """
 
     @abstractmethod
@@ -77,21 +95,21 @@ class PyBulletRobot(ABC):
         """Returns the position of a link as (x, y, z)
 
         Args:
-            link (int): The link index.
+            link (int): Link index.
 
         Returns:
-            np.ndarray: Position as (x, y, z)
+            np.ndarray: Position as (x, y, z).
         """
         return self.sim.get_link_position(self.body_name, link)
 
     def get_link_orientation(self, link: int) -> np.ndarray:
-        """Returns the orientation of a link as (rx, ry, rz, w)
+        """Returns the orientation of a link as (qx, qy, qz, qw)
 
         Args:
-            link (int): The link index.
+            link (int): Link index.
 
         Returns:
-            np.ndarray: Orientation as (rx, ry, rz, w).
+            np.ndarray: Orientation as (qx, qy, qz, qw).
         """
         return self.sim.get_link_orientation(self.body_name, link)
     
@@ -99,10 +117,10 @@ class PyBulletRobot(ABC):
         """Returns the linear velocity of a link as (vx, vy, vz)
 
         Args:
-            link (int): The link index.
+            link (int): Link index.
 
         Returns:
-            np.ndarray: Linear velocity as (vx, vy, vz)
+            np.ndarray: Linear velocity as (vx, vy, vz).
         """
         return self.sim.get_link_linear_velocity(self.body_name, link)
 
@@ -110,10 +128,10 @@ class PyBulletRobot(ABC):
         """Returns the angular velocity of a link as (wx, wy, wz)
 
         Args:
-            link (int): The link index.
+            link (int): Link index.
 
         Returns:
-            np.ndarray: Angular velocity as (wx, wy, wz)
+            np.ndarray: Angular velocity as (wx, wy, wz).
         """
         return self.sim.get_link_angular_velocity(self.body_name, link)
 
@@ -121,7 +139,7 @@ class PyBulletRobot(ABC):
         """Returns the angle of a joint
 
         Args:
-            joint (int): The joint index.
+            joint (int): Joint index.
 
         Returns:
             float: Joint angle
@@ -132,10 +150,10 @@ class PyBulletRobot(ABC):
         """Returns the velocity of a joint as (wx, wy, wz)
 
         Args:
-            joint (int): The joint index.
+            joint (int): Joint index.
 
         Returns:
-            np.ndarray: Joint velocity as (wx, wy, wz)
+            float: Joint velocity.
         """
         return self.sim.get_joint_velocity(self.body_name, joint)
 
@@ -143,7 +161,7 @@ class PyBulletRobot(ABC):
         """Control the joints of the robot.
 
         Args:
-            target_angles (np.ndarray): The target angles. The length of the array must equal to the number of joints.
+            target_angles (np.ndarray): Target angles. The length of the array must equal to the number of joints.
         """
         self.sim.control_joints(
             body=self.body_name,
@@ -156,10 +174,37 @@ class PyBulletRobot(ABC):
         """Set the joint position of a body. Can induce collisions.
 
         Args:
-            angles (list): Joint angles.
+            angles (np.ndarray): Joint angles.
         """
         self.sim.set_joint_angles(self.body_name, joints=self.joint_indices, angles=angles)
+        
+    def forward_kinematics(self, angles: np.ndarray) -> pin.SE3:
+        """Compute forward kinematics. 
 
+        Args:
+            angles (np.ndarray): Joint angles.
+
+        Returns:
+            SE3: Tip frame placement.
+        """
+        return self.kin_solver.compute_fk(q=angles)
+
+    def inverse_kinematics(self, target_pose: pin.SE3, angles: np.ndarray) -> np.ndarray:
+        """Compute the inverse kinematics and return the new joint values.
+
+        Args:
+            target_pose (pin.SE3): Target pose.
+            angles (np.ndarray): Joint angles.
+
+        Returns:
+            np.ndarray: List of joint angles.
+        """
+        target_velocity = self.kin_solver.compute_ik(Tdes=target_pose, q=angles, dt=self.sim.dt)
+        target_angles = angles + target_velocity * self.sim.dt
+
+        return target_angles
+
+    '''
     def inverse_kinematics(self, link: int, position: np.ndarray, orientation: np.ndarray) -> np.ndarray:
         """Compute the inverse kinematics and return the new joint values.
 
@@ -173,7 +218,8 @@ class PyBulletRobot(ABC):
         """
         inverse_kinematics = self.sim.inverse_kinematics(self.body_name, link=link, position=position, orientation=orientation)
         return inverse_kinematics
-    
+    '''
+
     def get_contact_force(self, link: int, object_name: str) -> np.ndarray:
         """Get the contact force between a link and an object. 
 

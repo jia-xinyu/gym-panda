@@ -1,0 +1,110 @@
+(Load from example-robot-data into Pybullet) check_pybullet()
+
+Joint Index: 0
+Joint Name: b'panda_joint1'
+Joint Type: 0
+Joint Lower Limit: -2.8973
+Joint Upper Limit: 2.8973
+Link Name: b'panda_link1', Link Index: 0
+Link World Position: ( 0.0039,  0.0021,  0.2854)
+Link World Orientation: ( 0.0000,  0.0000, -0.0000)
+-----------------------------
+Joint Index: 1
+Joint Name: b'panda_joint2'
+Joint Type: 0
+Joint Lower Limit: -1.7628
+Joint Upper Limit: 1.7628
+Link Name: b'panda_link2', Link Index: 1
+Link World Position: (-0.0032,  0.0035,  0.3617)
+Link World Orientation: (-0.7071, -0.0005, -0.0006)
+-----------------------------
+Joint Index: 2
+Joint Name: b'panda_joint3'
+Joint Type: 0
+Joint Lower Limit: -2.8973
+Joint Upper Limit: 2.8973
+Link Name: b'panda_link3', Link Index: 2
+Link World Position: ( 0.0264,  0.0397,  0.5825)
+Link World Orientation: (-0.0000, -0.0008,  0.0086)
+-----------------------------
+Joint Index: 3
+Joint Name: b'panda_joint4'
+Joint Type: 0
+Joint Lower Limit: -3.0718
+Joint Upper Limit: -0.0698
+Link Name: b'panda_link4', Link Index: 3
+Link World Position: ( 0.0362, -0.0268,  0.7568)
+Link World Orientation: ( 0.7065,  0.0292, -0.0171)
+-----------------------------
+Joint Index: 4
+Joint Name: b'panda_joint5'
+Joint Type: 0
+Joint Lower Limit: -2.8973
+Joint Upper Limit: 2.8973
+Link Name: b'panda_link5', Link Index: 4
+Link World Position: ( 0.0094,  0.0412,  1.0001)
+Link World Orientation: (-0.0002,  0.0327,  0.0118)
+-----------------------------
+Joint Index: 5
+Joint Name: b'panda_joint6'
+Joint Type: 0
+Joint Lower Limit: -0.0175
+Joint Upper Limit: 3.7525
+Link Name: b'panda_link6', Link Index: 5
+Link World Position: ( 0.0844,  0.0124,  1.0227)
+Link World Orientation: ( 0.7071,  0.0138,  0.0029)
+-----------------------------
+Joint Index: 6
+Joint Name: b'panda_joint7'
+Joint Type: 0
+Joint Lower Limit: -2.8973
+Joint Upper Limit: 2.8973
+Link Name: b'panda_link7', Link Index: 6
+Link World Position: ( 0.1231,  0.0034,  0.9746)
+Link World Orientation: ( 0.9879, -0.1547, -0.0076)
+-----------------------------
+Joint Index: 7
+Joint Name: b'panda_joint8'
+Joint Type: 4
+Joint Lower Limit: 0.0
+Joint Upper Limit: -1.0
+Link Name: b'panda_link8', Link Index: 7
+Link World Position: ( 0.1111,  0.0025,  0.9294)
+Link World Orientation: ( 0.9879, -0.1547, -0.0076)
+-----------------------------
+Joint Index: 8
+Joint Name: b'panda_hand_joint'
+Joint Type: 4
+Joint Lower Limit: 0.0
+Joint Upper Limit: -1.0
+Link Name: b'panda_hand', Link Index: 8
+Link World Position: ( 0.1017, -0.0021,  0.8995)
+Link World Orientation: ( 0.9719,  0.2351, -0.0075)
+-----------------------------
+Joint Index: 9
+Joint Name: b'panda_hand_tcp_joint'
+Joint Type: 4
+Joint Lower Limit: 0.0
+Joint Upper Limit: -1.0
+Link Name: b'panda_hand_tcp', Link Index: 9
+Link World Position: ( 0.1095,  0.0025,  0.8260)
+Link World Orientation: ( 0.9719,  0.2351, -0.0075)
+-----------------------------
+Joint Index: 10
+Joint Name: b'panda_finger_joint1'
+Joint Type: 1
+Joint Lower Limit: 0.0
+Joint Upper Limit: 0.04
+Link Name: b'panda_leftfinger', Link Index: 10
+Link World Position: ( 0.1104,  0.0021,  0.8710)
+Link World Orientation: ( 0.9719,  0.2351, -0.0075)
+-----------------------------
+Joint Index: 11
+Joint Name: b'panda_finger_joint2'
+Joint Type: 1
+Joint Lower Limit: 0.0
+Joint Upper Limit: 0.04
+Link Name: b'panda_rightfinger', Link Index: 11
+Link World Position: ( 0.1102,  0.0025,  0.8710)
+Link World Orientation: ( 0.9719,  0.2351, -0.0075)
+-----------------------------
